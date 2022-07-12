@@ -3,8 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
+          integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF"
+            crossorigin="anonymous"></script>
 </head>
 <body>
+<div class="container">
+    <div>
+        <div class="col-12">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <a class="navbar-brand" href="#">TÁC VỤ</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item active">
+                            <a class="nav-link" href="#"> <span class="sr-only">(current)</span></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" onclick="showAddForm()">THÊM MỚI</a>
+                        </li>
+<!--                        <li class="nav-item dropdown">-->
+<!--                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-expanded="false">-->
+<!--                                Dropdown-->
+<!--                            </a>-->
+<!--                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">-->
+<!--                                <a class="dropdown-item" href="#">Action</a>-->
+<!--                                <a class="dropdown-item" href="#">Another action</a>-->
+<!--                                <div class="dropdown-divider"></div>-->
+<!--                                <a class="dropdown-item" href="#">Something else here</a>-->
+<!--                            </div>-->
+<!--                        </li>-->
+<!--                        <li class="nav-item">-->
+<!--                            <a class="nav-link disabled">Disabled</a>-->
+<!--                        </li>-->
+                    </ul>
+                    <div class="form-inline my-2 my-lg-0">
+                        <input class="form-control mr-sm-2" type="search" placeholder="Tên muốn tìm" aria-label="Search" id="search-name">
+                        <button class="btn btn-outline-success my-2 my-sm-0" onclick="search()">TÌM KIẾM</button>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-9">
+            <h2>BẢN ĐỒ</h2>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">TÊN THÀNH PHỐ</th>
+                    <th scope="col">QUỐC GIA</th>
+                    <th scope="col">DIỆN TÍCH</th>
+                    <th scope="col">DÂN SỐ</th>
+                    <th scope="col">TỔNG SẢN PHẨM NỘI ĐỊA</th>
+                    <th scope="col">MÔ TẢ VỀ THÀNH PHỐ</th>
+                    <th scope="col">XÓA</th>
+                    <th scope="col">SỮA</th>
+                </tr>
+                </thead>
+                <tbody id="list">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+     // modal them
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addForm" enctype="multipart/form-data">
+                    <label>Tên Thành Phố: </label>
+                    <input type="text" id="tenThanhPho" class="form-control" placeholder="Tên Thành Phố">
+                    <label>Quốc Gia: </label>
+                    <input type="text" id="quocGia" class="form-control" placeholder="Quốc Gia">
+                    <label>Diện Tích: </label>
+                    <input type="number" id="dienTich" class="form-control" placeholder="Diện Tích">
+                    <label>Dân Số: </label>
+                    <input type="number" id="danSo" class="form-control" placeholder="Dân Số">
+                    <label>GDP: </label>
+                    <input type="number" id="tongSanPhamNoiDia" class="form-control" placeholder="Tổng Sản Phẩm Nội Địa">
+                    <label>Mô Tả: </label>
+                    <input type="text" id="moTaVeThanhPho" class="form-control" placeholder="Mô tả">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="save()">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script>
+    let tbody = document.getElementById('list')
+    let addForm = document.getElementById('addForm');
+    loadData()
+    function loadData() {
+        $.ajax({
+            type: "GET",
+            url: "http://localhost:8083/bandothanhphos",
+            success: function (list) {
+                loadBang(list)
+            }});}
+
+    function loadBang(list) {
+        let str = "";
+        console.log(list)
+        for (let i = 0; i < list.length; i++) {
+            str += `<tr>
+      <th scope="row">${i + 1}</th>
+      <td>${list[i].tenThanhPho}</td>
+      <td>${list[i].quocGia}</td>
+      <td>${list[i].dienTich}</td>
+      <td>${list[i].danSo}</td>
+      <td>${list[i].tongSanPhamNoiDia}</td>
+      <td>${list[i].moTaVeThanhPho}</td>
+       <td><button onclick="deleteHouse(${list[i].id})">Delete</button></td>
+       <td><button onclick="showEditForm(${list[i].id})">Edit</button></td>
+    </tr>`
+        }
+        tbody.innerHTML = str;
+    }
+
+    function showAddForm() {
+        $("#exampleModal").modal("show");
+    }
+    function save(){
+        let tenThanhPho = document.getElementById('tenThanhPho').value
+        let quocGia = document.getElementById('quocGia').value
+        let dienTich = document.getElementById('dienTich').value
+        let danSo = document.getElementById('danSo').value
+        let tongSanPhamNoiDia = document.getElementById('tongSanPhamNoiDia').value
+        let moTaVeThanhPho = document.getElementById('moTaVeThanhPho').value
+
+
+        let bandothanhpho = {
+            tenThanhPho : tenThanhPho,
+            quocGia : quocGia,
+            dienTich : dienTich,
+            danSo : danSo ,
+            tongSanPhamNoiDia : tongSanPhamNoiDia ,
+            moTaVeThanhPho : moTaVeThanhPho
+        }
+
+        $.ajax({
+            type: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + localStorage.getItem('token')
+            },
+            url: "http://localhost:8083/bandothanhphos",
+            data: JSON.stringify(bandothanhpho),
+            success: function () {
+                loadData()
+                $('#exampleModal').modal('hide');
+                bandothanhpho.reset();
+            },
+            error: function (error) {
+                console.log(error)
+                alert("nhap sai ! xin nhap lai @@")
+            }
+        })
+
+
+    }
+
+
+
+
+
+
+
+</script>
 
 </body>
 </html>
